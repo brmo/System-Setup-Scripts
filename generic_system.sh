@@ -188,13 +188,12 @@ function update_upgrade {
 
 function install_common {
      apt-get install htop unzip zip curl python-software-properties nano
+     nginx=stable
+     add-apt-repository ppa:nginx/$nginx
 }
 
 function install_nginxphp {
      print_info "Starting Nginx/PHP5/PHP5 FPM Installation"
-     check_install nginx nginx
-     nginx=stable
-     add-apt-repository ppa:nginx/$nginx
      apt-get install -qq nginx php5-fpm php5-mysql php5-curl php5-gd php5-idn php-pear php5-imagick php5-imap php5-mcrypt php5-memcache php5-ming php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl
 
 service php5-fpm stop
