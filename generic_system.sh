@@ -179,14 +179,13 @@ END
 }
 
 function update_upgrade {
-     print_info "apt-get update and upgrade now running"
-    # Run through the apt-get update/upgrade first. This should be done before
-    # we try to install any package
+    print_info "apt-get update and upgrade now running"
     apt-get -qq -y update
     apt-get -qq -y upgrade
 }
 
 function install_common {
+     print_info "Installing common software packages..."
      apt-get install htop unzip zip curl python-software-properties nano
      nginx=stable
      add-apt-repository ppa:nginx/$nginx
@@ -196,8 +195,8 @@ function install_nginxphp {
      print_info "Starting Nginx/PHP5/PHP5 FPM Installation"
      apt-get install -qq nginx php5-fpm php5-mysql php5-curl php5-gd php5-idn php-pear php5-imagick php5-imap php5-mcrypt php5-memcache php5-ming php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl
 
-service php5-fpm stop
-service nginx stop
+     service php5-fpm stop
+     service nginx stop
 
 cat > /etc/nginx/conf.d/lowendbox.conf <<END
 server_names_hash_bucket_size 64;
@@ -225,7 +224,7 @@ END
 }
 
 function install_mysqlserver {
-    # Install the MySQL packages
+    print_info "Installing MySQL Server"
     check_install mysqld mysql-server
 
     # Install a low-end copy of the my.cnf to disable InnoDB, and then delete
@@ -252,10 +251,12 @@ END
 }
 
 function install_mysqlclient {
-         check_install mysql mysql-client
+    print_info "Installing MySQL Server"
+    check_install mysql mysql-client
 }
 
 function make_directories {
+     print_info "Creating web directories"
      mkdir -p /storage/web/vhosts/
      chown -R www-data:www-data /storage/web/
 
@@ -263,6 +264,7 @@ function make_directories {
 
 
 function start_services {
+     print_info "Starting Web Services"
      service php5-fpm start
      service nginx start
 }
