@@ -180,8 +180,7 @@ END
 
 function update_upgrade {
     print_info "apt-get update and upgrade now running"
-    apt-get -qq -y update
-    apt-get -qq -y upgrade
+    apt-get -qq -y update && apt-get -qq -y upgrade
 }
 
 function install_common {
@@ -193,16 +192,16 @@ function install_common {
 
 function install_nginxphp {
      print_info "Starting Nginx/PHP5/PHP5 FPM Installation"
-     apt-get install -qq nginx php5-fpm php5-mysql php5-curl php5-gd php5-idn php-pear php5-imagick php5-imap php5-mcrypt php5-memcache php5-ming php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl
+     apt-get install -qq nginx php5-fpm php5-mysql php5-curl php5-gd php5-idn php-pear php5-imagick php5-imap php5-mcrypt php5-memcache php5-ming php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl php5-sqlite
 
-     service php5-fpm stop
-     service nginx stop
+     service php5-fpm stop && service nginx stop
 
 cat > /etc/nginx/conf.d/lowendbox.conf <<END
 server_names_hash_bucket_size 64;
 END
 
 cat > /etc/php5/fpm/pool.d/www.conf <<END
+[www]
 listen = 127.0.0.1:9000
 user = www-data
 group = www-data
@@ -237,6 +236,7 @@ key_buffer = 8M
 query_cache_size = 0
 skip-innodb
 END
+
     service mysql start
 
     # Generating a new password for the root user.
@@ -251,7 +251,7 @@ END
 }
 
 function install_mysqlclient {
-    print_info "Installing MySQL Server"
+    print_info "Installing MySQL Client"
     check_install mysql mysql-client
 }
 
@@ -265,8 +265,7 @@ function make_directories {
 
 function start_services {
      print_info "Starting Web Services"
-     service php5-fpm start
-     service nginx start
+     service php5-fpm start && service nginx start
 }
 
 ########################################################################
@@ -278,39 +277,25 @@ check_sanity
 case "$1" in
 system)
      remove_unneeded
-     sleep 2
      update_upgrade
-     sleep 2
      install_dash
-     sleep 2
      install_syslogd
-     sleep 2
      install_dropbear
-     sleep 2
      install_common
-     sleep 2
      set_timezone
-     sleep 2
      update_upgrade
-     sleep 2
     ;;
 webserver)
      install_nginxphp
-     sleep 2
      update_upgrade
-     sleep 2
      make_directories
-     sleep 2
      start_services
-     sleep 2
      ;;
 mysql-server)
      install_mysqlserver
-     sleep 2
      ;;
 mysql-client)
      install_mysqlclient
-     sleep 2
      ;;
 *)
     echo 'Usage:' `basename $0` '[option]'
