@@ -259,6 +259,8 @@ function make_directories {
      print_info "Creating web directories"
      mkdir -p /storage/web/vhosts/
      chown -R www-data:www-data /storage/web/
+     mkdir -p /var/www
+     chown -R www-data:www-data /var/www
 
 }
 
