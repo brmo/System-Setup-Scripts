@@ -282,7 +282,7 @@ system)
      update_upgrade
      install_dash
      install_syslogd
-     install_dropbear
+#     install_dropbear
      install_common
      set_timezone
      update_upgrade
