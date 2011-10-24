@@ -219,7 +219,7 @@ chdir = /var/www
 END
 
 
- 
+
 }
 
 function install_mysqlserver {
@@ -232,9 +232,31 @@ function install_mysqlserver {
     rm -f /var/lib/mysql/ib*
     cat > /etc/mysql/conf.d/lowendbox.cnf <<END
 [mysqld]
-key_buffer = 8M
-query_cache_size = 0
+back_log = 75
 skip-innodb
+max_connections = 500
+key_buffer = 384M
+myisam_sort_buffer_size = 64M
+join_buffer_size = 1M
+read_buffer_size = 1M
+sort_buffer_size = 2M
+table_cache = 1800
+thread_cache_size = 384
+wait_timeout = 7200
+connect_timeout = 10
+tmp_table_size = 64M
+max_heap_table_size = 64M
+max_allowed_packet = 64M
+max_connect_errors = 1000
+read_rnd_buffer_size = 524288
+bulk_insert_buffer_size = 8M
+query_cache_limit = 4M
+query_cache_size =128M
+query_cache_type = 1
+query_prealloc_size = 65536
+query_alloc_block_size = 131072
+default-storage-engine = MyISAM
+bind-address = 0.0.0.0
 END
 
     service mysql start
@@ -308,4 +330,3 @@ mysql-client)
     done
     ;;
 esac
-
