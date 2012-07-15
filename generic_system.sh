@@ -185,7 +185,7 @@ function update_upgrade {
 
 function install_common {
      print_info "Installing common software packages..."
-     apt-get install -qq -y htop unzip zip curl python-software-properties nano
+     apt-get install -qq -y htop unzip zip curl python-software-properties nano p7zip-full s3cmd
      nginx=stable
      add-apt-repository ppa:nginx/$nginx
 }
