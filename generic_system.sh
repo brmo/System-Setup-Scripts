@@ -201,8 +201,8 @@ function install_mysqlserver {
 [mysqld]
 back_log = 75
 skip-innodb
-max_connections = 100
-key_buffer = 384M
+max_connections = 20
+key_buffer = 128M
 myisam_sort_buffer_size = 64M
 join_buffer_size = 10M
 read_buffer_size = 10M
