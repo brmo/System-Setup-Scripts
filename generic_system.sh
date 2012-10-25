@@ -139,36 +139,8 @@ END
     service inetutils-syslogd start
 }
 
-function install_dash {
-    check_install dash dash
-    rm -f /bin/sh
-    ln -s dash /bin/sh
-}
-
-function install_dropbear {
-    check_install dropbear dropbear
-    check_install /usr/sbin/xinetd xinetd
-
-    # Disable SSH
-    touch /etc/ssh/sshd_not_to_be_run
-    service ssh stop
-
-    # Enable dropbear to start. We are going to use xinetd as it is just
-    # easier to configure and might be used for other things.
-    cat > /etc/xinetd.d/dropbear <<END
-service ssh
-{
-    socket_type     = stream
-    only_from       = 0.0.0.0
-    wait            = no
-    user            = root
-    protocol        = tcp
-    server          = /usr/sbin/dropbear
-    server_args     = -i
-    disable         = no
-}
-END
-    service xinetd restart
+function change_ssh_port {
+    sudo sed -ie 's/Port.*[0-9]$/Port '5022'/gI' /etc/ssh/sshd_config
 }
 
 function set_timezone {
@@ -186,8 +158,6 @@ function update_upgrade {
 function install_common {
      print_info "Installing common software packages..."
      apt-get install -qq -y htop unzip zip curl python-software-properties nano p7zip-full s3cmd
-     nginx=stable
-     add-apt-repository ppa:nginx/$nginx
 }
 
 function install_nginxphp {
@@ -217,9 +187,6 @@ ping.response = pong
 slowlog = /var/log/php-fpm.log.slow
 chdir = /var/www
 END
-
-
-
 }
 
 function install_mysqlserver {
@@ -230,16 +197,16 @@ function install_mysqlserver {
     # all the related files.
     service mysql stop
     rm -f /var/lib/mysql/ib*
-    cat > /etc/mysql/conf.d/lowendbox.cnf <<END
+    cat > /etc/mysql/conf.d/config.cnf <<END
 [mysqld]
 back_log = 75
 skip-innodb
-max_connections = 500
+max_connections = 100
 key_buffer = 384M
 myisam_sort_buffer_size = 64M
-join_buffer_size = 1M
-read_buffer_size = 1M
-sort_buffer_size = 2M
+join_buffer_size = 10M
+read_buffer_size = 10M
+sort_buffer_size = 20M
 table_cache = 1800
 thread_cache_size = 384
 wait_timeout = 7200
@@ -286,6 +253,34 @@ function make_directories {
 
 }
 
+function upgrade-os {
+    sudo apt-get install update-manager-core
+    sudo sed -ie 's/Prompt.*[a-z]$/Prompt='normal'/gI' /etc/update-manager/release-upgrades
+    do-release-upgrade -q
+
+}
+
+function web_ufw_enable {
+    sudo ufw allow 80
+    sudo ufw allow 443
+    sudo ufw allow 5022
+    sudo ufw default deny
+    sudo ufw enable
+}
+
+function sql_ufw_enable {
+    sudo ufw allow 5022
+    ufw allow from 10.181.1.55 to any port 3306
+    sudo ufw default deny
+    sudo ufw enable
+}
+
+function disable_root_login {
+    sudo sed -ie 's/PermitRootLogin.*[a-z]$/PermitRootLogin 'no'/gI' /etc/ssh/sshd_config
+    cat > ~/.ssh/authorized_keys <<END
+ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAIEAje7kOO+RPOkUAEE8IETWJTyRs4CiOx1Ou00nmkZn1Dll/dwUF4gSniL+DdTFzbjG5iVM+HuJKB6FA3u/Rw2PVCE2yOPqXzQYb3XtwbsCs5xbUfd5PJhtCXpzp/HDJJOAyxFtzGbkApmrnKwjL1xzGxIG6zkNVwVH9JgXI9+19Y8= Brian Morris Personal Key 8/14/2012
+END
+}
 
 function start_services {
      print_info "Starting Web Services"
@@ -302,10 +297,9 @@ case "$1" in
 system)
      remove_unneeded
      update_upgrade
-     install_dash
      install_syslogd
-#     install_dropbear
      install_common
+     change_ssh_port
      set_timezone
      update_upgrade
     ;;
@@ -321,10 +315,22 @@ mysql-server)
 mysql-client)
      install_mysqlclient
      ;;
+upgrade-os)
+     upgrade-os
+     ;;
+web-ufw-rules)
+     web_ufw_enable
+     ;;
+sql-ufw-rules)
+     sql_ufw_enable
+     ;;
+disable-root-login)
+    disable-root-login
+    ;;
 *)
     echo 'Usage:' `basename $0` '[option]'
     echo 'Available option:'
-    for option in system webserver mysql-server mysql-client
+    for option in system webserver mysql-server mysql-client upgrade-os web_ufw_rules sql_ufw_rules disable-root-login
     do
         echo '  -' $option
     done
