@@ -197,33 +197,57 @@ function install_mysqlserver {
     # all the related files.
     service mysql stop
     rm -f /var/lib/mysql/ib*
+    touch /var/log/mysql.slow-queries.log
     cat > /etc/mysql/conf.d/config.cnf <<END
 [mysqld]
 back_log = 75
 skip-innodb
-max_connections = 20
-key_buffer = 128M
-myisam_sort_buffer_size = 64M
-join_buffer_size = 10M
-read_buffer_size = 10M
-sort_buffer_size = 20M
-table_cache = 1800
-thread_cache_size = 384
-wait_timeout = 7200
-connect_timeout = 10
+max_connections = 10
+key_buffer_size = 16M
+myisam_sort_buffer_size = 32M
+join_buffer_size = 2M
+read_buffer_size = 2M
+sort_buffer_size = 2M
+table_cache = 512
+thread_cache_size = 8
+wait_timeout = 20
+record_buffer = 2M
+connect_timeout = 15
+interactive_timeout = 100
 tmp_table_size = 64M
 max_heap_table_size = 64M
-max_allowed_packet = 64M
-max_connect_errors = 1000
+max_allowed_packet = 16M
+max_connect_errors = 10
 read_rnd_buffer_size = 524288
 bulk_insert_buffer_size = 8M
 query_cache_limit = 4M
-query_cache_size =128M
+query_cache_size = 32M
 query_cache_type = 1
 query_prealloc_size = 65536
 query_alloc_block_size = 131072
 default-storage-engine = MyISAM
 bind-address = 0.0.0.0
+slow-query-log      = 1
+slow-query-log-file = /var/log/mysql.slow-queries.log
+long_query_time     = 1
+
+[mysqld_safe]
+log-error        = /var/log/mysqld.log
+pid-file         = /var/run/mysqld/mysqld.pid
+open_files_limit = 2048
+
+[isamchk]
+key_buffer   = 64M
+sort_buffer  = 64M
+read_buffer  = 16M
+write_buffer = 16M
+
+[myisamchk]
+key_buffer   = 64M
+sort_buffer  = 64M
+read_buffer  = 16M
+write_buffer = 16M
+
 END
 
     service mysql start
