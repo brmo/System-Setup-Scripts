@@ -256,6 +256,7 @@ function make_directories {
 function upgrade-os {
     sudo apt-get install update-manager-core
     sudo sed -ie 's/Prompt.*[a-z]$/Prompt='normal'/gI' /etc/update-manager/release-upgrades
+    sed -i 's/mirror.rackspace.com/us.archive.ubuntu.com/' /etc/apt/sources.list
     do-release-upgrade -q
 
 }
