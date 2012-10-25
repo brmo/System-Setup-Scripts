@@ -201,7 +201,7 @@ function install_mysqlserver {
     cat > /etc/mysql/conf.d/config.cnf <<END
 [mysqld]
 back_log = 75
-skip-innodb
+#skip-innodb
 max_connections = 10
 key_buffer_size = 16M
 myisam_sort_buffer_size = 32M
@@ -211,7 +211,6 @@ sort_buffer_size = 2M
 table_cache = 512
 thread_cache_size = 8
 wait_timeout = 20
-record_buffer = 2M
 connect_timeout = 15
 interactive_timeout = 100
 tmp_table_size = 64M
@@ -220,8 +219,8 @@ max_allowed_packet = 16M
 max_connect_errors = 10
 read_rnd_buffer_size = 524288
 bulk_insert_buffer_size = 8M
-query_cache_limit = 4M
-query_cache_size = 32M
+query_cache_limit = 1M
+query_cache_size = 8M
 query_cache_type = 1
 query_prealloc_size = 65536
 query_alloc_block_size = 131072
@@ -230,6 +229,7 @@ bind-address = 0.0.0.0
 slow-query-log      = 1
 slow-query-log-file = /var/log/mysql.slow-queries.log
 long_query_time     = 1
+
 
 [mysqld_safe]
 log-error        = /var/log/mysqld.log
