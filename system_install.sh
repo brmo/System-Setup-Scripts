@@ -137,8 +137,8 @@ function install_mysqlserver {
 
   sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
 	sudo add-apt-repository 'deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/ubuntu quantal main'
-	sudo apt-get update
-	sudo apt-get install mariadb-server libmariadbclient18
+	sudo apt-get update -y -qq
+	sudo apt-get install -y -qq mariadb-server libmariadbclient18
 	
     touch /var/log/mysql.slow-queries.log
 	
@@ -208,7 +208,7 @@ webserver)
      make_directories
      start_services
      ;;
-mysql-server)
+mysql)
      install_mysqlserver
      ;;
 upgrade-os)
@@ -226,7 +226,7 @@ disable-root-login)
 *)
     echo 'Usage:' `basename $0` '[option]'
     echo 'Available option:'
-    for option in system webserver mysql-server mysql-client upgrade-os web_ufw_rules sql_ufw_rules disable-root-login
+    for option in system webserver mysql upgrade-os web_ufw_rules sql_ufw_rules disable-root-login
     do
         echo '  -' $option
     done
