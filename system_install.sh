@@ -197,7 +197,6 @@ case "$1" in
 system)
      remove_unneeded
      update_upgrade
-     install_syslogd
      install_common
      change_ssh_port
      set_timezone
